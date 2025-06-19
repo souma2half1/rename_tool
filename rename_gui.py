@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from tkinter import ttk
 
 # Supported image extensions
 SUPPORTED_EXTS = {'.png', '.jpg', '.jpeg', '.webp'}
@@ -55,17 +56,22 @@ def rename_images(folder, theme):
 def main():
     root = tk.Tk()
     root.title("画像リネームツール")
+    root.resizable(False, False)
+    root.option_add("*Font", ("Arial", 10))
 
-    tk.Label(root, text="フォルダ").grid(row=0, column=0, padx=5, pady=5, sticky='e')
-    folder_entry = tk.Entry(root, width=40)
+    frame = ttk.Frame(root, padding=10)
+    frame.pack(fill="both", expand=True)
+
+    ttk.Label(frame, text="フォルダ").grid(row=0, column=0, padx=5, pady=5, sticky='e')
+    folder_entry = ttk.Entry(frame, width=45)
     folder_entry.grid(row=0, column=1, padx=5, pady=5)
-    tk.Button(root, text="参照", command=lambda: select_folder(folder_entry)).grid(row=0, column=2, padx=5, pady=5)
+    ttk.Button(frame, text="参照", command=lambda: select_folder(folder_entry)).grid(row=0, column=2, padx=5, pady=5)
 
-    tk.Label(root, text="テーマ名").grid(row=1, column=0, padx=5, pady=5, sticky='e')
-    theme_entry = tk.Entry(root, width=40)
+    ttk.Label(frame, text="テーマ名").grid(row=1, column=0, padx=5, pady=5, sticky='e')
+    theme_entry = ttk.Entry(frame, width=45)
     theme_entry.grid(row=1, column=1, padx=5, pady=5)
 
-    tk.Button(root, text="リネーム実行", command=lambda: rename_images(folder_entry.get(), theme_entry.get())).grid(row=2, column=1, pady=10)
+    ttk.Button(frame, text="リネーム実行", command=lambda: rename_images(folder_entry.get(), theme_entry.get())).grid(row=2, column=1, pady=10)
 
     root.mainloop()
 
