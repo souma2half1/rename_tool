@@ -19,6 +19,34 @@ def normalize_theme(theme: str) -> str:
     return theme
 
 
+def _paths_refer_to_same_file(path_a: str, path_b: str) -> bool:
+    """Return True if *path_a* and *path_b* point to the same file.
+
+    ``os.path.samefile`` is not always available (or may raise ``OSError``) on
+    some platforms, so we guard the call and fall back to a conservative
+    comparison that still works for the case-insensitive file systems we care
+    about (e.g. Windows)."""
+
+    try:
+        return os.path.samefile(path_a, path_b)
+    except (OSError, AttributeError):
+        return os.path.normcase(os.path.abspath(path_a)) == os.path.normcase(
+            os.path.abspath(path_b)
+        )
+
+
+def _should_rename(old_path: str, new_path: str) -> bool:
+    """Return True if *old_path* can safely be renamed to *new_path*."""
+
+    if old_path == new_path:
+        return False
+
+    if not os.path.exists(new_path):
+        return True
+
+    return _paths_refer_to_same_file(old_path, new_path)
+
+
 def build_rename_plan(folder: str, theme: str, start_index: int = 1):
     """Return rename plan for files in *folder* using *theme* from *start_index*."""
     theme = normalize_theme(theme)
@@ -45,7 +73,7 @@ def build_rename_plan(folder: str, theme: str, start_index: int = 1):
         _, ext = os.path.splitext(filename)
         new_name = f"{theme}_{str(idx).zfill(digits)}{ext}"
         new_path = os.path.join(folder, new_name)
-        will_rename = old_path != new_path and not os.path.exists(new_path)
+        will_rename = _should_rename(old_path, new_path)
         plan.append((old_path, new_path, filename, new_name, will_rename))
     return plan
 
